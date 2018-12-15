@@ -37,6 +37,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import io.crossbar.autobahn.wamp.Client;
 import io.crossbar.autobahn.wamp.Session;
+import io.crossbar.autobahn.wamp.types.EventDetails;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -101,18 +102,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void getLocationFromServer() {
-        mWAMPSession.subscribe("io.crossbar.location", (o, eventDetails) -> {
-            System.out.println(o);
-            
-            LatLng current = new LatLng((double) o.get(1), (double) o.get(0));
-            mSpeedText.setText(String.format("Speed: %s", o.get(2)));
-            mMap.addMarker(new MarkerOptions()
-                    .icon(vectorToBitmap(R.drawable.bike))
-                    .position(current).title("Marker Label")
-                    .snippet("Marker Description"));
-            CameraPosition cameraPosition = new CameraPosition.Builder().target(current).zoom(14).build();
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        });
+        mWAMPSession.subscribe("io.crossbar.location", this::onLocation, CustomLocation.class);
+    }
+
+    private void onLocation(CustomLocation location) {
+        LatLng current = new LatLng(location.lat, location.lon);
+        mSpeedText.setText(String.format("Speed: %s", location.speed));
+        mMap.addMarker(new MarkerOptions()
+                .icon(vectorToBitmap(R.drawable.bike))
+                .position(current).title("Marker Label")
+                .snippet("Marker Description"));
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(current).zoom(14).build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     private void stopLocationUpdates() {
