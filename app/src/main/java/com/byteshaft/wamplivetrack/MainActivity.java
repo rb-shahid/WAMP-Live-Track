@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mWAMPSession.subscribe("io.crossbar.location", this::onLocation, CustomLocation.class);
     }
 
-    private void onLocation(CustomLocation location, EventDetails details) {
+    private void onLocation(CustomLocation location) {
         LatLng current = new LatLng(location.lat, location.lon);
         mSpeedText.setText(String.format("Speed: %s", location.speed));
         mMap.addMarker(new MarkerOptions()
